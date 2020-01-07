@@ -20,3 +20,27 @@ class Altura_rompiente(models.Model):
     num_medicion = models.IntegerField()
     valor  = models.FloatField()
     #id_medicion =models.ForeignKey('Mediciones',models.DO_NOTHING,db_column='id_medicion')
+
+class Fase_lunar(models.Model):
+    id_fase = models.AutoField(primary_key=True )
+    nombre = models.CharField(max_length=25)
+
+class Parroquias(models.Model):
+    id_parroquia = models.AutoField(primary_key=True )
+    nombre = models.CharField(max_length=50)
+    #"foranea" id_canton =models.ForeignKey('cantones',models.DO_NOTHING,db_column='id_canton')
+
+class Cantones(models.Model):
+    id_canton = models.AutoField(primary_key=True )
+    nombre = models.CharField(max_length=50)
+    #"foranea" id_provincia =models.ForeignKey('provincias',models.DO_NOTHING,db_column='id_provincia')
+    
+class Provincias(models.Model):
+    id_provincia = models.AutoField(primary_key=True )
+    nombre = models.CharField(max_length=50)
+
+class Estados(models.Model):
+    id_estado = models.AutoField(primary_key=True )
+    nombre = models.CharField(max_length=20)
+        
+
