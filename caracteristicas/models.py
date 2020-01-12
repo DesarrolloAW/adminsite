@@ -1,19 +1,30 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
-
-
 class Roles(models.Model):
     id_rol = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=25, help_text="Indique el rol")
+
+    class Meta:
+        verbose_name = 'Rol'
+        verbose_name_plural = 'Roles'
 
 class Tipo_oleaje(models.Model):
     id_tipo =models.CharField(max_length=5, primary_key=True)
     nombre = models.CharField(max_length=25)
 
+    class Meta:
+        verbose_name = 'Tipo de oleaje'
+        verbose_name_plural = 'Tipos de oleajes'
+
 class Periodos(models.Model):
     id_periodos = models.AutoField(primary_key=True )
     horario =models.DateTimeField(auto_now=False, auto_now_add=False)
+
+    class Meta:
+        verbose_name = 'Periodo'
+        verbose_name_plural = 'Periodos'
 
 class Altura_rompiente(models.Model):
     id_alt_romp = models.AutoField(primary_key=True )
@@ -21,27 +32,51 @@ class Altura_rompiente(models.Model):
     valor  = models.FloatField()
     #id_medicion =models.ForeignKey('Mediciones',models.DO_NOTHING,db_column='id_medicion')
 
+    class Meta:
+        verbose_name = 'Altura rompiente'
+        verbose_name_plural = 'Alturas rompientes'
+
 class Fase_lunar(models.Model):
     id_fase = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=25)
 
-class Parroquias(models.Model):
-    id_parroquia = models.AutoField(primary_key=True )
+    class Meta:
+        verbose_name = 'Fase lunar'
+        verbose_name_plural = 'Fases lunares'
+
+class Provincias(models.Model):
+    id_provincia = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=50)
-    #"foranea" id_canton =models.ForeignKey('cantones',models.DO_NOTHING,db_column='id_canton')
+    
+    class Meta:
+        verbose_name = 'Provincia'
+        verbose_name_plural = 'Provincias'
 
 class Cantones(models.Model):
     id_canton = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=50)
-    #"foranea" id_provincia =models.ForeignKey('provincias',models.DO_NOTHING,db_column='id_provincia')
-    
-class Provincias(models.Model):
-    id_provincia = models.AutoField(primary_key=True )
+    id_provincia =models.ForeignKey(Provincias, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Cantón'
+        verbose_name_plural = 'Cantones'
+
+class Parroquias(models.Model):
+    id_parroquia = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=50)
+    id_canton =models.ForeignKey(Cantones, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Parróquia'
+        verbose_name_plural = 'Parróquias'
 
 class Estados(models.Model):
     id_estado = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=20)
+
+    class Meta:
+        verbose_name = 'Estado'
+        verbose_name_plural = 'Estados'
 
 class Mediciones(models.Model):
     id_medicion = models.AutoField(primary_key=True)
@@ -69,3 +104,53 @@ class Mediciones(models.Model):
     ola_direccion = models.IntegerField()
     estado = models.ForeignKey(Estados, models.DO_NOTHING)
 
+    class Meta:
+        verbose_name = 'Medicion'
+        verbose_name_plural = 'Mediciones'
+
+
+class Estaciones(models.Model):
+    id_estacion = models.AutoField(primary_key=True)
+    id_parroquia = models.ForeignKey(Parroquias, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100, blank=True, null=True)
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    puntosReferencia = models.CharField(max_length=100, null=True, blank=True)
+    foto = models.ImageField(max_length=200, blank=True, null=True, upload_to = 'static/img/stations/', default = 'static/img/None/no-img.jpg') 
+    id_estado = models.ForeignKey(Estados, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Estación'
+        verbose_name_plural = 'Estaciones'
+
+class Usuarios(models.Model):
+    id_usuario = models.AutoField(primary_key=True)
+    auth_user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='auth_user')
+    institucion = models.CharField(max_length=50, null=True, blank=True)
+    telefono = models.CharField(max_length=15, null=True, blank=True)
+    cedula = models.CharField(max_length=15, null=True, blank=True)
+    id_provincia = models.ForeignKey(Provincias, on_delete=models.CASCADE)
+    id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE)
+    id_estado = models.ForeignKey(Estados, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = 'Usuario'
+        verbose_name_plural = 'Usuarios'
+
+    def __str__(self):
+        return self.auth_user.username
+
+class Observaciones(models.Model):
+    id_observacion = models.AutoField(primary_key=True)
+    epoca = models.CharField(max_length=15, blank=True, null=True)
+    fecha = models.DateField(blank=True, null=True)
+    registeredto = models.DateTimeField()
+    id_usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+    id_fase_lunar = models.ForeignKey(Fase_lunar, on_delete=models.CASCADE)
+    id_estacion = models.ForeignKey(Estaciones, on_delete=models.CASCADE)
+    id_estado = models.ForeignKey(Estados, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Observación'
+        verbose_name_plural = 'Observaciones'
+        ordering = ["-fecha"]#ordenar por fecha descendente
