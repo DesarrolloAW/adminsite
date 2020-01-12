@@ -26,16 +26,6 @@ class Periodos(models.Model):
         verbose_name = 'Periodo'
         verbose_name_plural = 'Periodos'
 
-class Altura_rompiente(models.Model):
-    id_alt_romp = models.AutoField(primary_key=True )
-    num_medicion = models.IntegerField()
-    valor  = models.FloatField()
-    #id_medicion =models.ForeignKey('Mediciones',models.DO_NOTHING,db_column='id_medicion')
-
-    class Meta:
-        verbose_name = 'Altura rompiente'
-        verbose_name_plural = 'Alturas rompientes'
-
 class Fase_lunar(models.Model):
     id_fase = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=25)
@@ -77,37 +67,6 @@ class Estados(models.Model):
     class Meta:
         verbose_name = 'Estado'
         verbose_name_plural = 'Estados'
-
-class Mediciones(models.Model):
-    id_medicion = models.AutoField(primary_key=True)
-    id_observacion = models.ForeignKey('Observaciones', models.DO_NOTHING)
-    fechaHora = models.DateTimeField()
-    ola_tipo_oleaje = models.ForeignKey(Tipo_oleaje, models.DO_NOTHING)
-    corriente_resaca = models.BooleanField()
-    latitud = models.FloatField()
-    longitud = models.FloatField()
-    temperatura = models.FloatField()
-    id_periodo = models.ForeignKey(Periodos, models.DO_NOTHING)
-    perfil_playa = models.IntegerField()
-    ancho_zon_surf = models.FloatField()
-    lp_flotador = models.IntegerField()
-    lp_rompiente = models.IntegerField()
-    crl_espacio = models.FloatField()
-    crl_tiempo = models.IntegerField()
-    crl_velocidad = models.FloatField()
-    crl_direccion = models.CharField(max_length=1)
-    vien_direccion = models.IntegerField()
-    vien_velocidad = models.FloatField()
-    ola_ortogonal = models.IntegerField()
-    ola_periodo_onda = models.IntegerField()
-    ola_altura_rompiente_promedio = models.FloatField()
-    ola_direccion = models.IntegerField()
-    estado = models.ForeignKey(Estados, models.DO_NOTHING)
-
-    class Meta:
-        verbose_name = 'Medicion'
-        verbose_name_plural = 'Mediciones'
-
 
 class Estaciones(models.Model):
     id_estacion = models.AutoField(primary_key=True)
@@ -154,3 +113,43 @@ class Observaciones(models.Model):
         verbose_name = 'Observación'
         verbose_name_plural = 'Observaciones'
         ordering = ["-fecha"]#ordenar por fecha descendente
+
+class Mediciones(models.Model):
+    id_medicion = models.AutoField(primary_key=True)
+    id_observacion = models.ForeignKey(Observaciones, models.DO_NOTHING)
+    fechaHora = models.DateTimeField()
+    ola_tipo_oleaje = models.ForeignKey(Tipo_oleaje, models.DO_NOTHING)
+    corriente_resaca = models.BooleanField()
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    temperatura = models.FloatField()
+    id_periodo = models.ForeignKey(Periodos, models.DO_NOTHING)
+    perfil_playa = models.IntegerField()
+    ancho_zon_surf = models.FloatField()
+    lp_flotador = models.IntegerField()
+    lp_rompiente = models.IntegerField()
+    crl_espacio = models.FloatField()
+    crl_tiempo = models.IntegerField()
+    crl_velocidad = models.FloatField()
+    crl_direccion = models.CharField(max_length=1)
+    vien_direccion = models.IntegerField()
+    vien_velocidad = models.FloatField()
+    ola_ortogonal = models.IntegerField()
+    ola_periodo_onda = models.IntegerField()
+    ola_altura_rompiente_promedio = models.FloatField()
+    ola_direccion = models.IntegerField()
+    estado = models.ForeignKey(Estados, models.DO_NOTHING)
+
+    class Meta:
+        verbose_name = 'Medicion'
+        verbose_name_plural = 'Mediciones'
+
+class Altura_rompiente(models.Model):
+    id_alt_romp = models.AutoField(primary_key=True )
+    num_medicion = models.IntegerField()
+    valor  = models.FloatField()
+    id_medicion = models.ForeignKey(Mediciones, models.DO_NOTHING, db_column='id_medicion')
+
+    class Meta:
+        verbose_name = 'Altura rompiente'
+        verbose_name_plural = 'Alturas rompientes'
