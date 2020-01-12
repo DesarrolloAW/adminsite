@@ -42,5 +42,30 @@ class Provincias(models.Model):
 class Estados(models.Model):
     id_estado = models.AutoField(primary_key=True )
     nombre = models.CharField(max_length=20)
-        
+
+class Mediciones(models.Model):
+    id_medicion = models.AutoField(primary_key=True)
+    id_observacion = models.ForeignKey('Observaciones', models.DO_NOTHING)
+    fechaHora = models.DateTimeField()
+    ola_tipo_oleaje = models.ForeignKey(Tipo_oleaje, models.DO_NOTHING)
+    corriente_resaca = models.BooleanField()
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    temperatura = models.FloatField()
+    id_periodo = models.ForeignKey(Periodos, models.DO_NOTHING)
+    perfil_playa = models.IntegerField()
+    ancho_zon_surf = models.FloatField()
+    lp_flotador = models.IntegerField()
+    lp_rompiente = models.IntegerField()
+    crl_espacio = models.FloatField()
+    crl_tiempo = models.IntegerField()
+    crl_velocidad = models.FloatField()
+    crl_direccion = models.CharField(max_length=1)
+    vien_direccion = models.IntegerField()
+    vien_velocidad = models.FloatField()
+    ola_ortogonal = models.IntegerField()
+    ola_periodo_onda = models.IntegerField()
+    ola_altura_rompiente_promedio = models.FloatField()
+    ola_direccion = models.IntegerField()
+    estado = models.ForeignKey(Estados, models.DO_NOTHING)
 
