@@ -7,3 +7,4 @@ Datos de característica litorales.
 1. django 3.0.1
 2. mysqlclient 1.4.6
 3. pillow 7.0.0
+4. requests 2.22.0

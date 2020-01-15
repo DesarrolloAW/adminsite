@@ -20,7 +20,7 @@ class Tipo_oleaje(models.Model):
 
 class Periodos(models.Model):
     id_periodos = models.AutoField(primary_key=True )
-    horario =models.DateTimeField(auto_now=False, auto_now_add=False)
+    horario =models.TimeField(auto_now=False, auto_now_add=False)
 
     class Meta:
         verbose_name = 'Periodo'
