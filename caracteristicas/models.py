@@ -75,7 +75,8 @@ class Estaciones(models.Model):
     latitud = models.FloatField()
     longitud = models.FloatField()
     puntosReferencia = models.CharField(max_length=100, null=True, blank=True)
-    foto = models.ImageField(max_length=200, blank=True, null=True, upload_to = 'static/img/stations/', default = 'static/img/None/no-img.jpg') 
+    #foto = models.ImageField(max_length=200, blank=True, null=True, upload_to = 'static/img/stations/', default = 'static/img/None/no-img.jpg') 
+    foto = models.CharField(max_length=200, null=True)
     id_estado = models.ForeignKey(Estados, on_delete=models.CASCADE)
 
     class Meta:
