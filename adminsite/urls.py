@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from caracteristicas.views import llenar_base
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ingresar/', llenar_base)
 ]
