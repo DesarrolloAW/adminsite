@@ -19,6 +19,5 @@ from caracteristicas.views import llenar_base
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('ingresar/', llenar_base),
     path('', include('caracteristicas.urls'))
 ]
