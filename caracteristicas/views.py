@@ -5,11 +5,11 @@ import requests
 import json
 from django.contrib.auth.models import User
 import datetime, random
-
+from rest_framework import status
+from rest_framework.decorators import api_view
+from django.core.mail import EmailMessage, BadHeaderError, send_mail
 
 # Create your views here.
-
-
 def llenar_base(request):
     """
     rol = Roles(nombre="admin")
@@ -107,3 +107,30 @@ def llenar_base(request):
             #medi = Mediciones(id_observacion=obser, fechaHora=datetime.datetime.now(), ola_tipo_oleaje=t_ola, corriente_resaca=cr,
              #           latitud=obser.id_estacion.latitud, longitud=obser.id_estacion.longitud, temperatura=26.0, id_periodo=per)
     return HttpResponse()
+
+@api_view(['POST'])
+def sendEmail(request):
+    if request.method == 'POST':
+        dic = request.POST.dict()
+
+        nombres = dic['nombres']
+        asunto = dic['asunto']
+        mail = dic['correo']
+        mensaje = dic['mensaje']
+        textomensaje = '<br>'
+        lista = mensaje.split('\n')
+        c = 0
+        for i in lista:
+            textomensaje += i+'</br>'
+            c+=1
+            if len(lista)  > c :
+                textomensaje += '<br>'
+        msj = '<p><strong>Nombres: </strong>'+nombres+'</p><p><strong>Correo: </strong>'+mail+'</p><strong>Mensaje: </strong>'+textomensaje+'</p>'
+        msj2 = msj+'<br/><br/><br/><p>Usted se contacto con Centro Internacional del Pacífico.</p><p><strong>NO RESPONDER A ESTE MENSAJE</strong>, nosotros nos pondremos en conacto con usted de ser necesario.</p><br/>'
+        try:
+            send_mail('Contactanos: '+asunto, msj,'investigacioncentro63@gmail.com', ['investigacioncentro63@gmail.com'], fail_silently=False, html_message = '<html><body>'+msj+'</body></html>')
+            send_mail('Correo enviado: '+asunto, msj2, 'investigacioncentro63@gmail.com', [mail], fail_silently=False, html_message= '<html><body>'+msj2+'</body></html>')
+        except BadHeaderError:
+            return HttpResponse('Invalid header found.')
+        return HttpResponse(status=201)
+    return HttpResponse(status=404)
