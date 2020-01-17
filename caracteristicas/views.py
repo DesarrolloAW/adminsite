@@ -4,6 +4,8 @@ from .models import *
 import requests
 import json
 from django.contrib.auth.models import User
+import datetime, random
+
 
 # Create your views here.
 
@@ -71,19 +73,37 @@ def llenar_base(request):
        """
     obs = json.loads(requests.get(
         "https://cip-rrd.herokuapp.com/observaciones").content)
+    ep = ["invierno", "verano"]
+    est = Estados.objects.filter(id_estado=3)[0]
     for k in obs:
-            ob = obs[k]
-            p_name = ob['estacion']['Parroquia']
-           
-            if ob['estacion']['Parroquia'] == "Manglar Alto" or ob['estacion']['Parroquia'] == "Santa Elena":
-                p_name = "Manglaralto"
-            elif ob['estacion']['Parroquia'] == "Playas":
-                p_name = "General Villamil"
-            elif ob['estacion']['Parroquia'] == "Salinas":
-                p_name = "Vicente Rocafuerte"
-            p = Parroquias.objects.filter(nombre=p_name)[0]
-            esta = Estaciones.objects.filter(nombre=ob['estacion']['nombre'], id_parroquia=p)[0]
-            fase = Fase_lunar.objects.filter(nombre=ob['fase_lunar'])[0]
-            print(fase.id_fase)
-            
+        ob = obs[k]
+        p_name = ob['estacion']['Parroquia']
+    
+        if ob['estacion']['Parroquia'] == "Manglar Alto" or ob['estacion']['Parroquia'] == "Santa Elena":
+            p_name = "Manglaralto"
+        elif ob['estacion']['Parroquia'] == "Playas":
+            p_name = "General Villamil"
+        elif ob['estacion']['Parroquia'] == "Salinas":
+            p_name = "Vicente Rocafuerte"
+        p = Parroquias.objects.filter(nombre=p_name)[0]
+        esta = Estaciones.objects.filter(nombre=ob['estacion']['nombre'], id_parroquia=p)[0]
+        fase = Fase_lunar.objects.filter(nombre=ob['fase_lunar'])[0]
+        fecha = datetime.datetime.strptime(ob["fecha"], "%d/%m/%Y").date()
+        n, a = ob["observador"].split(" ")
+        a_u = User.objects.filter(first_name=n)[0]
+        usu = Usuarios.objects.filter(auth_user=a_u)[0]
+        obser = Observaciones(epoca=ep[random.randint(0, 1)], fecha=fecha, registeredto=datetime.datetime.now(), id_usuario=usu,
+            id_fase_lunar=fase, id_estacion=esta, id_estado=est)
+        #obser.save()
+        for md in ob["mediciones"]:
+            t_ola = Tipo_oleaje.objects.filter(id_tipo=md["olas"]["tipo"])[0]
+            cr = md["corriente_de_resaca"]
+            if cr == "SI":
+                cr = True
+            else: cr = False
+            #per = Periodos.objects.filter(horario=datetime.datetime.strptime(md["hora"], "%H:%M").time())[0]
+            per = Periodos.objects.all()[0]
+            print(per.horario)
+            #medi = Mediciones(id_observacion=obser, fechaHora=datetime.datetime.now(), ola_tipo_oleaje=t_ola, corriente_resaca=cr,
+             #           latitud=obser.id_estacion.latitud, longitud=obser.id_estacion.longitud, temperatura=26.0, id_periodo=per)
     return HttpResponse()

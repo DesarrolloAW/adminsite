@@ -76,11 +76,11 @@ WSGI_APPLICATION = 'adminsite.wsgi.application'
 
 DATABASES = {
     'default': {
-	'ENGINE': 'django.db.backends.mysql',
-	'NAME': 'proyectoDaw',
-	'USER': 'root',
-	'PASSWORD': 'root',
-	'HOST': 'localhost',
+	'ENGINE': 'django.db.backends.mysql', 
+	'NAME': 'VIrQLNlW2B',
+	'USER': 'VIrQLNlW2B',
+	'PASSWORD': 'VjmBywAt9a',
+	'HOST': 'remotemysql.com',
 	'PORT': '3306',
     }
 }
