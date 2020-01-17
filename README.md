@@ -8,3 +8,5 @@ Datos de característica litorales.
 2. mysqlclient 1.4.6
 3. pillow 7.0.0
 4. requests 2.22.0
+5. djangorestframework
+6. django-cors-headers
