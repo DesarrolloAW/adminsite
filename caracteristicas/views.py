@@ -1,13 +1,22 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.core.mail import EmailMessage, BadHeaderError, send_mail
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import *
 import requests
 import json
-from django.contrib.auth.models import User
 import datetime, random
-from rest_framework import status
-from rest_framework.decorators import api_view
-from django.core.mail import EmailMessage, BadHeaderError, send_mail
+
+from rest_framework.response import Response
+from rest_framework_jwt.views import ObtainJSONWebToken
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework_jwt.settings import api_settings
+#from .serializers import *
+
 
 # Create your views here.
 def llenar_base(request):
@@ -116,37 +125,38 @@ def llenar_base(request):
                 al_r = Altura_rompiente(num_medicion=i, valor=alt, id_medicion=medi)
                 al_r.save()
                 i = i + 1
-        """
+    """
     return HttpResponse("hello!!!")
 
-@api_view(['POST'])
+@csrf_exempt
 def sendEmail(request):
     if request.method == 'POST':
         dic = request.POST.dict()
-
+        
         nombres = dic['nombres']
-        asunto = dic['asunto']
+        asunto = 'Contacto de CIPRDR'
         mail = dic['correo']
         mensaje = dic['mensaje']
-        textomensaje = '<br>'
-        lista = mensaje.split('\n')
-        c = 0
-        for i in lista:
-            textomensaje += i+'</br>'
-            c+=1
-            if len(lista)  > c :
-                textomensaje += '<br>'
-        msj = '<p><strong>Nombres: </strong>'+nombres+'</p><p><strong>Correo: </strong>'+mail+'</p><strong>Mensaje: </strong>'+textomensaje+'</p>'
-        msj2 = msj+'<br/><br/><br/><p>Usted se contacto con Centro Internacional del Pacífico.</p><p><strong>NO RESPONDER A ESTE MENSAJE</strong>, nosotros nos pondremos en conacto con usted de ser necesario.</p><br/>'
-        try:
-            send_mail('Contactanos: '+asunto, msj,'investigacioncentro63@gmail.com', ['investigacioncentro63@gmail.com'], fail_silently=False, html_message = '<html><body>'+msj+'</body></html>')
-            send_mail('Correo enviado: '+asunto, msj2, 'investigacioncentro63@gmail.com', [mail], fail_silently=False, html_message= '<html><body>'+msj2+'</body></html>')
-        except BadHeaderError:
-            return HttpResponse('Invalid header found.')
-        return HttpResponse(status=201)
+
+        if nombres != '' and len(mail.split('@')) == 2 and mensaje != '':
+            textomensaje = '<br>'
+            lista = mensaje.split('\n')
+            c = 0
+            for i in lista:
+                textomensaje += i+'</br>'
+                c+=1
+                if len(lista)  > c :
+                    textomensaje += '<br>'
+            msj = '<p><strong>Nombres: </strong>'+nombres+'</p><p><strong>Correo: </strong>'+mail+'</p><strong>Mensaje: </strong>'+textomensaje+'</p>'
+            msj2 = msj+'<br/><br/><br/><p>Usted se contacto con Centro Internacional del Pacífico.</p><p><strong>NO RESPONDER A ESTE MENSAJE</strong>, nosotros nos pondremos en conacto con usted de ser necesario.</p><br/>'
+            try:
+                send_mail('Contactanos: '+asunto, msj,'investigacioncentro63@gmail.com', ['investigacioncentro63@gmail.com'], fail_silently=False, html_message = '<html><body>'+msj+'</body></html>')
+                send_mail('Correo enviado: '+asunto, msj2, 'investigacioncentro63@gmail.com', [mail], fail_silently=False, html_message= '<html><body>'+msj2+'</body></html>')
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+            return HttpResponse('Correo enviado',status=201)
     return HttpResponse(status=404)
 
-@api_view(['GET'])
 def getObservaciones(request):
     if request.method == 'GET':
         response = dict()
@@ -196,3 +206,68 @@ def getObservaciones(request):
                 ol["altura_promedio"] = med.ola_altura_rompiente_promedio
                 datos["mediciones"].append(info)
         return JsonResponse(response)
+
+class LoginUser(ObtainJSONWebToken):
+
+    @method_decorator(ensure_csrf_cookie)
+    def post(self, request, *args, **kwargs):
+        #request.data  {'username': '___', 'password': '___'}
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.object.get('user') or request.user
+            token = serializer.object.get('token')
+
+            response_data = {
+                api_settings.JWT_AUTH_COOKIE: token,
+                'username': user.username,
+                #'es_admin_restaurante': user.es_admin_restaurante
+            }
+            response = Response(data=response_data)
+
+            if api_settings.JWT_AUTH_COOKIE:
+                expiration = (datetime.datetime.utcnow() +
+                              api_settings.JWT_EXPIRATION_DELTA)
+                response.set_cookie(api_settings.JWT_AUTH_COOKIE, token, expires=expiration, httponly=True)
+            return response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def createUser(request):
+    '''
+    from django.contrib.auth.models import User
+
+    # Create user and save to the database
+    user = User.objects.create_user('myusername', 'myemail@crazymail.com', 'mypassword')
+
+    # Update fields and then save again
+    user.first_name = 'John'
+    user.last_name = 'Citizen'
+    user.save()
+
+    def create(self, request, *args, **kwargs):
+        #  Creando un nuevo usuario
+        username = request.POST.get('user.username')
+        password = request.POST.get('user.password')
+        # es_tecnico = request.POST.get('es_tecnico')
+        es_tecnico = False
+        print(username)
+
+        user = User.objects.create_user(username, password)
+        user.save()
+
+        token = Token.objects.create(user=user)
+
+        usuario = Usuario.objects.create(user = user, es_tecnico = es_tecnico)
+        usuario.save()
+
+    '''
+    return HttpResponse(status=201)
+
+def modifyUser(request):
+    '''
+    from django.contrib.auth.models import User
+    u = User.objects.get(username='john')
+    u.set_password('new password')
+    u.save()
+    '''
+    return HttpResponse(status = 201)

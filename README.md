@@ -10,3 +10,4 @@ Datos de característica litorales.
 4. requests 2.22.0
 5. djangorestframework
 6. django-cors-headers
+7. djangorestframework-jwt

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,7 @@ SECRET_KEY = '8yu$9x^2lf^ok(yj$&bqc*@*5e5$of7-56%$i&gw*6rhtiq2=f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost','127.0.0.1']
 
 
 # Application definition
@@ -40,6 +41,13 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'caracteristicas.apps.CaracteristicasConfig',
+
+    # Third-Party Apps
+    'rest_framework',
+    'rest_framework.authtoken',  # <-- Here
+
+    # Local Apps (Your project's apps)
+    #'caracteriticas.core',
 ]
 
 MIDDLEWARE = [
@@ -52,10 +60,39 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True   
+CORS_ORIGIN_ALLOW_ALL = True 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+    "http://localhost:8080",
+]  
+
+#AUTH_USER_MODEL = 'api.Ususario'
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        #'rest_framework.authentication.TokenAuthentication',  # <-- And here
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',#Miguel
+    ),
+}
+
+#AUTH_USER_MODEL = "caracteriticas."
+JWT_AUTH = { 
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+
+    'JWT_ALLOW_REFRESH': True,
+    #'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=2),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=1),
+    'JWT_AUTH_COOKIE': 'tokenId',
+}
 
 ROOT_URLCONF = 'adminsite.urls'
 
@@ -84,10 +121,10 @@ WSGI_APPLICATION = 'adminsite.wsgi.application'
 DATABASES = {
     'default': {
 	'ENGINE': 'django.db.backends.mysql', 
-	'NAME': 'VIrQLNlW2B',
-	'USER': 'VIrQLNlW2B',
-	'PASSWORD': 'VjmBywAt9a',
-	'HOST': 'remotemysql.com',
+	'NAME': 'proyectodaw',
+	'USER': 'root',
+	'PASSWORD': 'root',
+	'HOST': 'localhost',
 	'PORT': '3306',
     }
 }
@@ -135,6 +172,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'investigacioncentro63@gmail.com'
-EMAIL_HOST_PASSWORD = '****'
+EMAIL_HOST_PASSWORD = 'asdflkjh12*'
+# ssam 
+# stevenaraujo98
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
