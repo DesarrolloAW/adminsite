@@ -10,6 +10,9 @@ class Roles(models.Model):
         verbose_name = 'Rol'
         verbose_name_plural = 'Roles'
 
+    def __str__(self):
+        return self.nombre
+
 class Tipo_oleaje(models.Model):
     id_tipo =models.CharField(max_length=5, primary_key=True)
     nombre = models.CharField(max_length=25)
