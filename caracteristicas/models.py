@@ -110,10 +110,14 @@ class Observaciones(models.Model):
     id_estacion = models.ForeignKey(Estaciones, on_delete=models.CASCADE)
     id_estado = models.ForeignKey(Estados, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.id_observacion 
     class Meta:
         verbose_name = 'Observación'
         verbose_name_plural = 'Observaciones'
         ordering = ["-fecha"]#ordenar por fecha descendente
+
+    
 
 class Mediciones(models.Model):
     id_medicion = models.AutoField(primary_key=True)

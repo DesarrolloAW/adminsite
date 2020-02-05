@@ -9,7 +9,35 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.core.mail import EmailMessage, BadHeaderError, send_mail
 
+##from rest_framework import viewsets
+from .models import *
+from .serializers import *
 # Create your views here.
+"""
+class FaseLunarViewSet(viewsets.ModelViewSet):
+    queryset = Fase_lunar.objects.all()
+    serializer_class = FaseLunarSerializer
+    
+class ProvinciaViewSet(viewsets.ModelViewSet):
+    queryset = Provincias.objects.all()
+    serializer_class = FaseLunarSerializer
+
+class CantonViewSet(viewsets.ModelViewSet):
+    queryset = Cantones.objects.all()
+    serializer_class = FaseLunarSerializer
+
+class ParroquiaViewSet(viewsets.ModelViewSet):
+    queryset = Parroquias.objects.all()
+    serializer_class = FaseLunarSerializer
+
+class ObservacionViewSet(viewsets.ModelViewSet):
+    queryset = Observaciones.objects.all()
+    serializer_class = ObservacionSerializer
+
+class MedicionesViewSet(viewsets.ModelViewSet):
+    queryset = Mediciones.objects.all()
+    serializer_class = MedicionesSerializer"""
+
 def llenar_base(request):
     """
     rol = Roles(nombre="admin")
@@ -119,10 +147,11 @@ def llenar_base(request):
         """
     return HttpResponse("hello!!!")
 
+
 @api_view(['POST'])
 def sendEmail(request):
     if request.method == 'POST':
-        dic = request.POST.dict()
+        dic =  request.POST.dict()
 
         nombres = dic['nombres']
         asunto = dic['asunto']
@@ -145,6 +174,97 @@ def sendEmail(request):
             return HttpResponse('Invalid header found.')
         return HttpResponse(status=201)
     return HttpResponse(status=404)
+
+@api_view(['POST'])
+def postObservaciones(request):
+    if request.method=='POST':       
+        response=json.loads(request.body)
+        
+        fechaHora= response["fechaHora"]
+        provincia=response["provincia"]
+        parroquia=response["parroquia"]
+        canton=response["canton"]
+        estacion=response["estacion"]
+        fase_lunar=response["fase"]
+        epocac=response["epoca"]
+        temperatura = response["temperatura"]
+        perfil_playa = response["perfil_playa"]
+        corriente_de_resaca= response["corriente_resaca"]
+        latitud= response["latitud"]
+        longitud= response["longitud"]
+        ancho_zon_surf= response["ancho_zon_surf"]
+
+        lp_flotador=response["lp_flotador"]
+        lp_rompiente=response["lp_rompiente"]
+        crl_espacio= response["crl_espacio"]
+        crl_tiempo= response["crl_tiempo"]
+        crl_velocidad= response["crl_velocidad"]
+        vien_direccion= response["vien_direccion"]
+        vien_velocidad= response["vien_velocidad"]
+        ola_ortogonal= response["ola_ortogonal"]
+        ola_periodo_onda= response["ola_periodo_onda"]
+        ola_altura_rompiente_promedio= response["ola_altura_rompiente_promedio"]
+        ola_direccion= response["ola_direccion"]
+        id_observacion= response["id_observacion"]
+        ola_tipo_oleaje= response["ola_tipo_oleaje"]
+        id_periodo= response["id_periodo"]
+        estado=response["estado"]
+
+     
+        est = Estados.objects.filter(id_estado=estado)[0]
+        provinc = Provincias.objects.filter(nombre=provincia)[0]
+        parr = Parroquias.objects.filter(nombre=parroquia)[0]
+        estac = Estaciones.objects.filter(nombre=estacion)[0]
+        period = Periodos.objects.filter(id_periodos=id_periodo)[0]
+        fas = Fase_lunar.objects.filter(nombre=fase_lunar)[0]
+        rol = Roles.objects.filter(nombre="admin")[0]
+        perios= Periodos.objects.get(id_periodos=1)
+        ol = Tipo_oleaje.objects.get(id_tipo=ola_tipo_oleaje)
+        auth2 = User.objects.get(username="chjoguer")
+        u2= Usuarios.objects.get(auth_user=auth2)
+     
+        observacion = Observaciones(epoca=epocac,id_usuario=u2
+        ,registeredto=datetime.datetime.now(),id_fase_lunar=fas,id_estacion=estac,id_estado=est)
+       
+        medicion = Mediciones(id_observacion=observacion
+        ,corriente_resaca=corriente_de_resaca,fechaHora=datetime.datetime.now(),latitud=latitud,longitud=longitud
+        ,temperatura=temperatura,perfil_playa=perfil_playa,ancho_zon_surf=ancho_zon_surf
+        ,lp_flotador=lp_flotador,lp_rompiente=lp_rompiente,crl_espacio=crl_espacio,crl_tiempo=crl_tiempo,crl_velocidad=crl_velocidad,crl_direccion=response["crl_direccion"]
+        ,vien_direccion=vien_direccion,id_periodo=perios,vien_velocidad=vien_velocidad,ola_ortogonal=ola_ortogonal,ola_periodo_onda=ola_periodo_onda,ola_altura_rompiente_promedio=ola_altura_rompiente_promedio
+        ,ola_direccion=0,ola_tipo_oleaje=ol,estado=est)
+
+
+
+        olaAltura = Altura_rompiente(num_medicion=1,valor=response["md1"],id_medicion=medicion)
+        olaAltura2 = Altura_rompiente(num_medicion=1,valor=response["md2"],id_medicion=medicion)
+        olaAltura3 = Altura_rompiente(num_medicion=1,valor=response["md3"],id_medicion=medicion)
+        olaAltura4 = Altura_rompiente(num_medicion=1,valor=response["md4"],id_medicion=medicion)
+        olaAltura5 = Altura_rompiente(num_medicion=1,valor=response["md5"],id_medicion=medicion)
+        olaAltura6 = Altura_rompiente(num_medicion=1,valor=response["md6"],id_medicion=medicion)
+        olaAltura7 = Altura_rompiente(num_medicion=1,valor=response["md7"],id_medicion=medicion)
+        olaAltura8 = Altura_rompiente(num_medicion=1,valor=response["md8"],id_medicion=medicion)
+        olaAltura9 = Altura_rompiente(num_medicion=1,valor=response["md9"],id_medicion=medicion)
+        olaAltura10 = Altura_rompiente(num_medicion=1,valor=response["md10"],id_medicion=medicion)
+
+        observacion.save()
+        medicion.save()
+        olaAltura.save()
+        olaAltura2.save()
+        olaAltura3.save()
+        olaAltura4.save()
+        olaAltura5.save()
+        olaAltura6.save()
+        olaAltura7.save()
+        olaAltura8.save()
+        olaAltura9.save()
+        olaAltura10.save()
+
+        
+     
+
+    return JsonResponse(response)
+
+
 
 @api_view(['GET'])
 def getObservaciones(request):
