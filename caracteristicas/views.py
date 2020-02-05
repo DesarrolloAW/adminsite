@@ -218,11 +218,16 @@ class LoginUser(ObtainJSONWebToken):
         if serializer.is_valid():
             user = serializer.object.get('user') or request.user
             token = serializer.object.get('token')
+            
+            usuario = Usuarios.objects.get(id_usuario=user.id)
+            role_type = Roles.objects.get(id_rol = usuario.id_rol.id_rol)
+            
 
             response_data = {
                 api_settings.JWT_AUTH_COOKIE: token,
                 'username': user.username,
                 #'es_admin_restaurante': user.es_admin_restaurante
+                'typeUser': role_type.nombre,
             }
             response = Response(data=response_data)
 
@@ -300,7 +305,6 @@ def crear_estacion(request):
         }
         res = requests.post("http://localhost:3001/station", data=data)
     return HttpResponseRedirect("http://localhost:3000/admin")
-
 
 def get_provincias(request):
     if request.method == 'GET':
