@@ -15,6 +15,7 @@ from rest_framework_jwt.views import ObtainJSONWebToken
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework_jwt.settings import api_settings
+from rest_framework import status
 #from .serializers import *
 
 
@@ -271,3 +272,58 @@ def modifyUser(request):
     u.save()
     '''
     return HttpResponse(status = 201)
+
+@csrf_exempt
+def crear_estacion(request):
+    if(request.method == 'POST'):
+        data = request.POST.dict()
+        nombre = data['nombre']
+        lat = data['latitud']
+        lng = data['longitud']
+        parroquia = Parroquias.objects.filter(id_parroquia=data['parroquia'])[0]
+        img = data['img']
+        est = Estados.objects.filter(id_estado=1)[0]
+        estacion = Estaciones(id_parroquia=parroquia, nombre=nombre, latitud=lat, longitud=lng, 
+                                puntosReferencia="N/A", foto=img, id_estado=est)
+
+        estacion.save()
+        prov = Provincias.objects.filter(id_provincia=data['provincia'])[0]
+        cant = Cantones.objects.filter(id_canton=data['canton'])[0]
+        data = {
+            'name': nombre,
+            'province': prov.nombre,
+            'canton': cant.nombre,
+            'parish': parroquia.nombre,
+            'lat': lat,
+            'lng': lng,
+            'id': estacion.id_estacion
+        }
+        res = requests.post("http://localhost:3001/station", data=data)
+    return HttpResponseRedirect("http://localhost:3000/admin")
+
+
+def get_provincias(request):
+    if request.method == 'GET':
+        res = dict()
+        provincias = Provincias.objects.all()
+        for prov in provincias:
+            res[str(prov.id_provincia)] = prov.nombre
+        return JsonResponse(res)
+
+def get_cantones(request):
+    if request.method == 'GET':
+        res = dict()
+        id = request.GET.get("id_provincia")
+        cantones = Cantones.objects.filter(id_provincia=id)
+        for cant in cantones:
+            res[str(cant.id_canton)] = cant.nombre
+        return JsonResponse(res)
+
+def get_parroquias(request):
+    if request.method == 'GET':
+        res = dict()
+        id = request.GET.get("id_canton")
+        parroquias = Parroquias.objects.filter(id_canton=id)
+        for parr in parroquias:
+            res[str(parr.id_parroquia)] = parr.nombre
+        return JsonResponse(res)

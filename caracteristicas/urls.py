@@ -15,5 +15,8 @@ urlpatterns = [
     
     path('ingresar/', llenar_base),
     path('observaciones/', getObservaciones),
-
+    path('crear_estacion/', crear_estacion),
+    path('provincias/', get_provincias),
+    path('cantones/', get_cantones),
+    path('parroquias/', get_parroquias),
 ]
