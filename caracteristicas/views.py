@@ -627,3 +627,89 @@ def get_usuario(request):
                 ##datos["provincia"]=prv.name
         #datos = {'nombre': 'Steven', 'apellido': 'Araujo', 'user': 'ssam', 'email': 'saraujo@espol.edu.ec', 'institucion': 'ESPOL', 'id': 8}
         return JsonResponse(datos)
+
+@csrf_exempt
+def crear_provinvia(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        prov = Provincias(nombre=data["nombre"])
+        prov.save()
+        return HttpResponse(status=200)
+
+@csrf_exempt
+def update_provinvia(request):
+    if request.method == 'PUT':
+        data = json.loads(request.body.decode('utf-8'))
+        prov = Provincias.objects.filter(id_provincia=data['id'])[0]
+        prov.nombre = data["nombre"]
+        prov.save()
+        return HttpResponse(status=200)
+    
+@csrf_exempt
+def delete_provincia(request):
+    if request.method == 'DELETE':
+        data = json.loads(request.body.decode('utf-8'))
+        prov = Provincias.objects.filter(id_provincia=data['id'])[0]
+        cants = Cantones.objects.filter(id_provincia=prov)
+        for c in cants:
+            parrs = Parroquias.objects.filter(id_canton=c)
+            for p in parrs:
+                p.delete()
+            c.delete()
+        prov.delete()
+        return HttpResponse(status=200)
+
+@csrf_exempt
+def crear_canton(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        prov = Provincias.objects.filter(id_provincia=data["id_p"])[0]
+        cant = Cantones(nombre=data["nombre"], id_provincia=prov)
+        cant.save()
+        return HttpResponse(status=200)
+
+@csrf_exempt
+def update_canton(request):
+    if request.method == 'PUT':
+        data = json.loads(request.body.decode('utf-8'))
+        cant = Cantones.objects.filter(id_canton=data['id'])[0]
+        cant.nombre = data["nombre"]
+        cant.save()
+        return HttpResponse(status=200)
+    
+@csrf_exempt
+def delete_canton(request):
+    if request.method == 'DELETE':
+        data = json.loads(request.body.decode('utf-8'))
+        cant = Cantones.objects.filter(id_canton=data['id'])[0]
+        parrs = Parroquias.objects.filter(id_canton=cant)
+        for p in parrs:
+            p.delete()
+        cant.delete()
+        return HttpResponse(status=200)
+
+@csrf_exempt
+def crear_parroquia(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        cant = Cantones.objects.filter(id_canton=data["id_c"])[0]
+        parr = Parroquias(nombre=data["nombre"], id_canton=cant)
+        parr.save()
+        return HttpResponse(status=200)
+
+@csrf_exempt
+def update_parroquia(request):
+    if request.method == 'PUT':
+        data = json.loads(request.body.decode('utf-8'))
+        parr = Parroquias.objects.filter(id_parroquia=data['id'])[0]
+        parr.nombre = data["nombre"]
+        parr.save()
+        return HttpResponse(status=200)
+    
+@csrf_exempt
+def delete_parroquia(request):
+    if request.method == 'DELETE':
+        data = json.loads(request.body.decode('utf-8'))
+        parr = Parroquias.objects.filter(id_parroquia=data['id'])[0]
+        parr.delete()
+        return HttpResponse(status=200)
