@@ -35,4 +35,14 @@ urlpatterns = [
     path('estacion/', get_estacion),
     path('borrar_estacion/<int:idEstacion>', borrar_estacion),
     path('actualizar_estacion/<int:idEstacion>', actualizar_estacion),
+
+    path('crear_provincia/', crear_provinvia),
+    path('actua_provincia/', update_provinvia),
+    path('borrar_provincia/', delete_provincia),
+    path('crear_canton/', crear_canton),
+    path('actua_canton/', update_canton),
+    path('borrar_canton/', delete_canton),
+    path('crear_parroquia/', crear_parroquia),
+    path('actua_parroquia/', update_parroquia),
+    path('borrar_parroquia/', delete_parroquia),
 ]
