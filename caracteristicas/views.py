@@ -254,18 +254,19 @@ def postObservaciones(request):
 
      
         est = Estados.objects.filter(id_estado=estado)[0]
-        provinc = Provincias.objects.filter(nombre=provincia)[0]
         parr = Parroquias.objects.filter(nombre=parroquia)[0]
         estac = Estaciones.objects.filter(nombre=estacion)[0]
         period = Periodos.objects.filter(id_periodos=id_periodo)[0]
         fas = Fase_lunar.objects.filter(nombre=fase_lunar)[0]
-        rol = Roles.objects.filter(nombre="admin")[0]
+        
         perios= Periodos.objects.get(id_periodos=1)
         ol = Tipo_oleaje.objects.get(id_tipo=ola_tipo_oleaje)
-        auth2 = User.objects.get(username="chjoguer")
+
+        print(response["username"])
+        auth2 = User.objects.get(username=response["username"])
         u2= Usuarios.objects.get(auth_user=auth2)
      
-        observacion = Observaciones(epoca=epocac,id_usuario=u2
+        observacion = Observaciones(epoca=epocac,id_usuario=u2, fecha=datetime.date.today()
         ,registeredto=datetime.datetime.now(),id_fase_lunar=fas,id_estacion=estac,id_estado=est)
        
         medicion = Mediciones(id_observacion=observacion
@@ -300,10 +301,6 @@ def postObservaciones(request):
         olaAltura8.save()
         olaAltura9.save()
         olaAltura10.save()
-
-        
-     
-
     return JsonResponse(response)
 
 def getObservaciones(request):
