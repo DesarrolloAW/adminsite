@@ -100,8 +100,6 @@ class Usuarios(models.Model):
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
 
-    def __str__(self):
-        return self.auth_user.username
 
 class Observaciones(models.Model):
     id_observacion = models.AutoField(primary_key=True)
@@ -113,8 +111,7 @@ class Observaciones(models.Model):
     id_estacion = models.ForeignKey(Estaciones, on_delete=models.CASCADE)
     id_estado = models.ForeignKey(Estados, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.id_observacion 
+
     class Meta:
         verbose_name = 'Observación'
         verbose_name_plural = 'Observaciones'

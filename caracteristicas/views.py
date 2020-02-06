@@ -353,6 +353,66 @@ def getObservaciones(request):
                 datos["mediciones"].append(info)
         return JsonResponse(response)
 
+def getObservacionesUser(request):
+    if request.method == 'GET':
+        response = dict()
+        usuario = User.objects.filter(username=request.GET['username'])
+
+        if(len(usuario) > 0):
+            user = Usuarios.objects.get(auth_user= usuario[0])
+            obs = Observaciones.objects.filter(id_usuario = user)
+            print(obs)
+            for o in obs:
+                datos = dict()
+                response[o.id_observacion] = datos
+                datos["estacion"] = dict()
+                est = o.id_estacion
+                usuario = o.id_usuario.auth_user
+                datos["estacion"]["id"] = est.id_estacion
+                datos["estacion"]["nombre"] = est.nombre
+                datos["estacion"]["Parroquia"] = est.id_parroquia.nombre
+                datos["estacion"]["img"] = est.foto
+                datos["fecha"] = o.fecha
+                datos["epoca"] = o.epoca
+                
+                estado = o.id_estado
+                datos['estado'] = estado.nombre
+
+                datos["fase_lunar"] = o.id_fase_lunar.nombre
+                datos["observador"] = usuario.first_name + " " + usuario.last_name
+                datos["mediciones"] = list()
+                meds = Mediciones.objects.filter(id_observacion=o)
+                for med in meds:
+                    info = dict()
+                    info["hora"] = med.id_periodo.horario
+                    cl = dict()
+                    info["corriente_del_litoral"] = cl
+                    cl["espacio"] = med.crl_espacio
+                    cl["tiempo"] = med.crl_tiempo
+                    cl["direccion"] = med.crl_direccion
+                    cl["velocidad"] = med.crl_velocidad
+                    info["corriente_de_resaca"] = med.corriente_resaca
+                    info["ancho_de_zona_de_surf"] = med.ancho_zon_surf
+                    info["distancia_lp_al_flotador"] = med.lp_flotador
+                    info["distancia_lp_al_rompiente"] = med.lp_rompiente
+                    v = dict()
+                    info["viento"] = v
+                    v["velocidad"] = med.vien_velocidad
+                    v["direccion"] = med.vien_direccion
+                    info["orientacion_de_playa"] = med.perfil_playa
+                    ol = dict()
+                    info["olas"] = ol
+                    ol["ortogonal"] = med.ola_ortogonal
+                    ol["tipo"] = med.ola_tipo_oleaje.nombre
+                    ol["periodo"] = med.ola_periodo_onda
+                    ol["alturas"] = list()
+                    alts = Altura_rompiente.objects.filter(id_medicion=med)
+                    for alt in alts:
+                        ol["alturas"].append(alt.valor)
+                    ol["altura_promedio"] = med.ola_altura_rompiente_promedio
+                    datos["mediciones"].append(info)
+        return JsonResponse(response)
+
 class LoginUser(ObtainJSONWebToken):
 
     @method_decorator(ensure_csrf_cookie)
@@ -545,7 +605,6 @@ def get_parroquias(request):
         return JsonResponse(res)
 
 def get_usuario(request):
-    from django.contrib.auth.models import User
     if request.method == 'GET':
         id = request.GET.get("username")
         usr = User.objects.filter(username=id)
@@ -556,15 +615,15 @@ def get_usuario(request):
             datos["apellido"] = u.last_name
             datos["user"] = u.username
             datos["email"] = u.email
-            autorizacion = Usuarios.objects.filter(auth_user=u)
-            for aut in autorizacion:
-                datos["institucion"]=aut.institucion
-                datos["id"]=aut.id_usuario
-                ##provincia = Provincias.objects.filter(id_provincia=autorizacion)
+            
+            aut = Usuarios.objects.filter(auth_user=u)[0]
+            datos["institucion"]=aut.institucion
+            datos["id"]=aut.id_usuario
+
+            #provincia = Provincias.objects.filter(id_provincia=aut.id_provincia)[0]
+            #datos["provincia"]=provincia.nombre
+
                 ###for prv in provincia:
                 ##datos["provincia"]=prv.name
-
-
-
+        #datos = {'nombre': 'Steven', 'apellido': 'Araujo', 'user': 'ssam', 'email': 'saraujo@espol.edu.ec', 'institucion': 'ESPOL', 'id': 8}
         return JsonResponse(datos)
-
