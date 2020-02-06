@@ -546,3 +546,28 @@ def get_parroquias(request):
         for parr in parroquias:
             res[str(parr.id_parroquia)] = parr.nombre
         return JsonResponse(res)
+
+def get_usuario(request):
+    from django.contrib.auth.models import User
+    if request.method == 'GET':
+        id = request.GET.get("username")
+        usr = User.objects.filter(username=id)
+        ##usuarios = User.objects.all()
+        datos = dict()
+        for u in usr:
+            datos["nombre"] = u.first_name
+            datos["apellido"] = u.last_name
+            datos["user"] = u.username
+            datos["email"] = u.email
+            autorizacion = Usuarios.objects.filter(auth_user=u)
+            for aut in autorizacion:
+                datos["institucion"]=aut.institucion
+                datos["id"]=aut.id_usuario
+                ##provincia = Provincias.objects.filter(id_provincia=autorizacion)
+                ###for prv in provincia:
+                ##datos["provincia"]=prv.name
+
+
+
+        return JsonResponse(datos)
+

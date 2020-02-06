@@ -20,10 +20,13 @@ urlpatterns = [
     path('parroquias/', get_parroquias),
     path('postObservaciones/', postObservaciones),
     path('crear_usuario/', postCreateUser),
+    path('get_usuario/', get_usuario),
+
 
     path('crear_estacion/', crear_estacion),
     path('estacion/', get_estacion),
     path('borrar_estacion/<int:idEstacion>', borrar_estacion),
     path('actualizar_estacion/<int:idEstacion>', actualizar_estacion),
+    
     
 ]
