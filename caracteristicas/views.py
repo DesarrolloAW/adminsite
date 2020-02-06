@@ -21,7 +21,7 @@ from rest_framework import status
 
 ##from rest_framework import viewsets
 from .models import *
-from .serializers import *
+#from .serializers import *
 # Create your views here.
 """
 class FaseLunarViewSet(viewsets.ModelViewSet):
@@ -454,6 +454,68 @@ def crear_estacion(request):
         }
         res = requests.post("http://localhost:3001/station", data=data)
     return HttpResponseRedirect("http://localhost:3000/admin")
+
+def get_estacion(request):
+    if request.method == 'GET':
+        res = dict()
+        id = request.GET.get("id_estacion")
+        estacion = Estaciones.objects.filter(id_estacion=id)[0]
+        parr = estacion.id_parroquia
+        cant = parr.id_canton
+        prov = cant.id_provincia
+        res['parroquia'] = parr.id_parroquia
+        res['canton'] = cant.id_canton
+        res['provincia'] = prov.id_provincia
+        res['nombre'] = estacion.nombre
+        res['lat'] = estacion.latitud
+        res['lng'] = estacion.longitud
+        res['img'] = estacion.foto
+        return JsonResponse(res)
+
+@csrf_exempt
+def borrar_estacion(request, idEstacion):
+    if request.method == "DELETE":
+        body = request.body.decode('utf-8')
+        data = json.loads(body)
+        est = Estaciones.objects.filter(id_estacion=idEstacion)[0]
+        obs = Observaciones.objects.filter(id_estacion=est)
+        for o in obs:
+            meds = Mediciones.objects.filter(id_observacion=o)
+            for m in meds:
+                alts = Altura_rompiente.objects.filter(id_medicion=m)
+                for alt in alts:
+                    alt.delete()
+                m.delete()
+            o.delete()
+        est.delete()
+        res = requests.delete("http://localhost:3001/station/" + data['id'])
+        print(res.text)
+        return HttpResponse(status=200)
+
+@csrf_exempt
+def actualizar_estacion(request, idEstacion):
+    if request.method == 'PUT':
+        body = request.body.decode('utf-8')
+        data = json.loads(body)
+        est = Estaciones.objects.filter(id_estacion=idEstacion)[0]
+        est.nombre = data["nombre"]
+        est.latitud = data['latitud']
+        est.longitud = data['longitud']
+        est.id_parroquia = Parroquias.objects.filter(id_parroquia=data['parroquia'])[0]
+        est.foto = data['img']
+        est.id_estado = Estados.objects.filter(id_estado=1)[0]
+        est.save()
+        dat = {
+            'name': data["nombre"],
+            'province': est.id_parroquia.id_canton.id_provincia.nombre,
+            'canton': est.id_parroquia.id_canton.nombre,
+            'parish': est.id_parroquia.nombre,
+            'lat': data['latitud'],
+            'lng': data['longitud']
+        }
+        res = requests.put("http://localhost:3001/station/" + data['id'], data=dat)
+        return HttpResponse(status=200)
+
 
 def get_provincias(request):
     if request.method == 'GET':
