@@ -16,12 +16,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework_jwt.settings import api_settings
 from rest_framework import status
+
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import GenericAPIView
 #from .serializers import *
 
 
 ##from rest_framework import viewsets
-from .models import *
-#from .serializers import *
 # Create your views here.
 """
 class FaseLunarViewSet(viewsets.ModelViewSet):
@@ -157,7 +158,6 @@ def llenar_base(request):
     """
     return HttpResponse("hello!!!")
 
-
 @csrf_exempt
 def sendEmail(request):
     if request.method == 'POST':
@@ -190,12 +190,15 @@ def sendEmail(request):
 @csrf_exempt
 def postCreateUser(request):
     if request.method=='POST':
-        response= json.loads(request.body)
-        """auth = User(username=response["name"], password=response["pass"]
+        response = json.loads(request.body)
+        print(response)
+        """
+        auth = User(username=response["name"], password=response["pass"]
         , first_name=response["name"], 
-        last_name=response['apellido'], email=response['email'])"""
+        last_name=response['apellido'], email=response['email'])
+        """
         auth5 = User.objects.create_user(
-            username = response["name"],
+            username = response["username"],
             password = response["pass"],
             first_name=response["name"], 
             last_name=response['apellido'],
@@ -203,18 +206,16 @@ def postCreateUser(request):
         )
         est = Estados.objects.filter(id_estado=3)[0]
         prov = Provincias.objects.filter(nombre="Guayas")[0]
-        rol = Roles.objects.filter(nombre="admin")[0]
+        rol = Roles.objects.filter(nombre="visitante")[0]
 
         u = Usuarios(auth_user=auth5, 
-        institucion='Vicente Rocafuerte', 
-        telefono="0999991", cedula="0999991", 
+        institucion='ESPOL', 
+        telefono="0987654321", cedula="0999991123", 
         id_provincia=prov, id_rol=rol, id_estado=est)
 
-        ##auth.save()
         u.save()
-        return JsonResponse(response)
-
-
+        return HttpResponse(status=200)
+    return HttpResponse(status=404)
 
 @csrf_exempt
 def postObservaciones(request):
@@ -305,8 +306,6 @@ def postObservaciones(request):
 
     return JsonResponse(response)
 
-
-
 def getObservaciones(request):
     if request.method == 'GET':
         response = dict()
@@ -387,36 +386,41 @@ class LoginUser(ObtainJSONWebToken):
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def createUser(request):
-    '''
-    from django.contrib.auth.models import User
+class ProfielView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
 
-    # Create user and save to the database
-    user = User.objects.create_user('myusername', 'myemail@crazymail.com', 'mypassword')
+    def get(self, request):
+        print(request.query_params)
+        '''
+        foto_id = request.query_params.get('foto_id')
+        if not foto_id:
+            return Response(status=400, data={'msg': 'at least you should send the id of the entity'})
+        try:
+            data = FotosRestaurante.objects.get(pk=foto_id)
+        except FotosRestaurante.DoesNotExist:
+            return Response(status=400, data={'msg': 'no results for id: ' + foto_id})
 
-    # Update fields and then save again
-    user.first_name = 'John'
-    user.last_name = 'Citizen'
-    user.save()
+        serializer = self.get_serializer(data)
+        '''
 
-    def create(self, request, *args, **kwargs):
-        #  Creando un nuevo usuario
-        username = request.POST.get('user.username')
-        password = request.POST.get('user.password')
-        # es_tecnico = request.POST.get('es_tecnico')
-        es_tecnico = False
-        print(username)
+        #response = Response(data=response_data)
+        return Response(data={'usuario':1})
 
-        user = User.objects.create_user(username, password)
-        user.save()
+    def post(self, request):
 
-        token = Token.objects.create(user=user)
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            return Response(data={'msg': str(error)})
 
-        usuario = Usuario.objects.create(user = user, es_tecnico = es_tecnico)
-        usuario.save()
-
-    '''
-    return HttpResponse(status=201)
+        serializer.save()
+        add_photo_restaurant(request.data['restaurante'], {
+            'img_path': request.data['img_path'],
+            'tipo': request.data['tipo'],
+            'tamano': request.data['tamano']
+        })
+        return Response(data={'msg': 'Registrado con éxito'}, status=200)
 
 def modifyUser(request):
     '''

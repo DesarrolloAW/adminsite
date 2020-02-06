@@ -12,7 +12,7 @@ urlpatterns = [
     path('login/', LoginUser.as_view()),
     path(r'auth/refresh/', obtain_jwt_token),
 
-    
+    path('profile/',ProfielView.as_view()),
     path('ingresar/', llenar_base),
     path('observaciones/', getObservaciones),
     path('provincias/', get_provincias),
