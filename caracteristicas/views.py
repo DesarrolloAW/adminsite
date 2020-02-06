@@ -676,13 +676,14 @@ def borrar_observacion(request, user_name):
         obs = Observaciones.objects.filter(id_usuario=usr)
 
         for o in obs:
-            meds = Mediciones.objects.filter(id_observacion=o)
-            for m in meds:
-                alts = Altura_rompiente.objects.filter(id_medicion=m)
-                for alt in alts:
-                    alt.delete()
-                m.delete()
-            o.delete()
+            if o.id == data["id"]:
+                meds = Mediciones.objects.filter(id_observacion=o)
+                for m in meds:
+                    alts = Altura_rompiente.objects.filter(id_medicion=m)
+                    for alt in alts:
+                        alt.delete()
+                    m.delete()
+                o.delete()
 
         ##res = requests.delete("http://localhost:3001/station/" + data['id'])
         ##print(res.text)
