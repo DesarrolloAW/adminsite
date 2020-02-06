@@ -20,8 +20,16 @@ urlpatterns = [
     path('cantones/', get_cantones),
     path('parroquias/', get_parroquias),
     path('postObservaciones/', postObservaciones),
+
     path('crear_usuario/', postCreateUser),
     path('get_usuario/', get_usuario),
+    path('put_usuario/<str:username>', put_usuario2),
+    path('putUser/', put_usuario),##Post que se lo utiliza como put ojo
+    path('borrar_observacion/<str:username>', borrar_observacion),
+
+
+
+
 
     path('crear_estacion/', crear_estacion),
     path('estacion/', get_estacion),

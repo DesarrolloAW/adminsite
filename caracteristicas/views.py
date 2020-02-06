@@ -627,3 +627,63 @@ def get_usuario(request):
                 ##datos["provincia"]=prv.name
         #datos = {'nombre': 'Steven', 'apellido': 'Araujo', 'user': 'ssam', 'email': 'saraujo@espol.edu.ec', 'institucion': 'ESPOL', 'id': 8}
         return JsonResponse(datos)
+
+@csrf_exempt
+def put_usuario(request):
+      if request.method == 'POST':
+       ## body = request.body.decode('utf-8')
+        response = json.loads(request.body)
+        usr = User.objects.filter(username=data["username"])
+        usr.first_name = data["nombre"]
+        usr.last_name = data['apellido']
+        usr.email = data['email']
+        usr.save()
+        dat = {
+            'name': data["nombre"],
+            'apellido': data['apellido'],
+            'correo': data['email']
+        }
+        return JsonResponse(dat)
+
+@csrf_exempt
+def put_usuario2(request,user_name):
+    if request.method == 'PUT':
+        body = request.body.decode('utf-8')
+        data = json.loads(body)
+        usr = User.objects.filter(username=user_name)
+        usr.first_name = data["nombre"]
+        usr.last_name = data['apellido']
+        usr.correo = data['correo']
+        usr.save()
+        dat = {
+            'name': data["nombre"],
+            'apellido': data['apellido'],
+            'correo': data['correo']
+        }
+        res = requests.put("http://localhost:3001/station/" + data['id'], data=dat)
+        return HttpResponse(status=200)
+
+
+@csrf_exempt
+def borrar_observacion(request, user_name):
+    if request.method == "DELETE":
+        body = request.body.decode('utf-8')
+        data = json.loads(body)
+        ##est = Estaciones.objects.filter(id_estacion=idEstacion)[0]
+        
+        auth = User.objects.filter(username=user_name)
+        usr = Usuarios.objects.filter(auth_user=auth)
+        obs = Observaciones.objects.filter(id_usuario=usr)
+
+        for o in obs:
+            meds = Mediciones.objects.filter(id_observacion=o)
+            for m in meds:
+                alts = Altura_rompiente.objects.filter(id_medicion=m)
+                for alt in alts:
+                    alt.delete()
+                m.delete()
+            o.delete()
+
+        ##res = requests.delete("http://localhost:3001/station/" + data['id'])
+        ##print(res.text)
+        return HttpResponse(status=200)
