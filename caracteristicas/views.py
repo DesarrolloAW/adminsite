@@ -665,25 +665,23 @@ def put_usuario2(request,user_name):
 
 
 @csrf_exempt
-def borrar_observacion(request, user_name):
+def borrar_observacion(request):
     if request.method == "DELETE":
         body = request.body.decode('utf-8')
         data = json.loads(body)
         ##est = Estaciones.objects.filter(id_estacion=idEstacion)[0]
         
-        auth = User.objects.filter(username=user_name)
-        usr = Usuarios.objects.filter(auth_user=auth)
-        obs = Observaciones.objects.filter(id_usuario=usr)
+        ##auth = User.objects.filter(username=data["username"])
+        ##usr = Usuarios.objects.filter(auth_user=auth)
 
-        for o in obs:
-            if o.id == data["id"]:
-                meds = Mediciones.objects.filter(id_observacion=o)
-                for m in meds:
-                    alts = Altura_rompiente.objects.filter(id_medicion=m)
-                    for alt in alts:
-                        alt.delete()
-                    m.delete()
-                o.delete()
+        obs = Observaciones.objects.filter(id_observacion=data["id"])[0]
+        meds = Mediciones.objects.filter(id_observacion=obs)
+        for m in meds:
+            alts = Altura_rompiente.objects.filter(id_medicion=m)
+            for alt in alts:
+                alt.delete()
+            m.delete()
+        obs.delete()
 
         ##res = requests.delete("http://localhost:3001/station/" + data['id'])
         ##print(res.text)
